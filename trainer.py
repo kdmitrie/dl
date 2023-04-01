@@ -4,6 +4,7 @@ from numbers import Number
 
 from abc import ABC, abstractmethod
 
+import torch
 from torch import Tensor
 from torch.utils.data import DataLoader
 from torch.nn import Module
