@@ -25,6 +25,7 @@ class ModelMetrics(ABC):
         value = self.calc(predictions, targets)
         return ('{}={:'+fmt+'}').format(self.name, value)
 
+    
 
 class ModelAccuracy(ModelMetrics):
     """Accuracy metrics"""
@@ -32,6 +33,16 @@ class ModelAccuracy(ModelMetrics):
     def calc(self, predictions: np.ndarray, targets: np.ndarray) -> float:
         predict_class = np.argmax(predictions, axis=-1)
         return sum(predict_class == targets) / len(targets)
+    
+    
+    
+class ModelMultilabelAccuracy(ModelMetrics):
+    """Multilabel Accuracy metrics"""
+    name = 'mla'
+    def calc(self, predictions: np.ndarray, targets: np.ndarray) -> float:
+        predict_class = np.argmax(predictions, axis=-1)
+        return sum(tgt[cl] for (cl, tgt) in zip(predict_class, targets)) / len(targets)
+    
     
     
 @dataclass
