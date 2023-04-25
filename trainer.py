@@ -64,7 +64,7 @@ class ModelTrainer:
     metrics: List[ModelMetrics] = field(default_factory=list)
         
     # Whether to transfer data on GPU before applying the model
-    transfer_x_to_device : Boolean = True
+    transfer_x_to_device : Bool = True
         
     validation_calculate_rate: int = 1 # 0 for never calculating validation metrics
     print_rate: int = 1 # 0 for never printing metrics
