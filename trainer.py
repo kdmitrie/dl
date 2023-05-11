@@ -142,7 +142,14 @@ class ModelTrainer:
         return np.concatenate(all_predictions, axis=0), np.concatenate(all_targets), average_loss
 
     
-    
+    def validate_model(self, model):
+        model.eval()
+        with torch.no_grad():
+            val_predictions, val_targets, val_loss = self._train_epoch(model, 0, self.val_loader, None, self._backward_pass_no_train)
+            val_metrics = ', '.join('Val_' + metrics(val_predictions, val_targets) for metrics in self.metrics)
+            print(f'Val loss={val_loss:.3f} {val_metrics}')
+        
+        
     def __call__(self, model: Module, num_epochs: int = 10) -> None:
         """Model train on specified number of `num_epochs`"""
         val_loss = False
