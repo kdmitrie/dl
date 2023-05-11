@@ -146,7 +146,6 @@ class ModelTrainer:
 
     
     def validate_model(self, model):
-        model.eval()
         with torch.no_grad():
             val_predictions, val_targets, val_loss = self._train_epoch(model, 0, self.val_loader, None, self._backward_pass_no_train)
             val_metrics = ', '.join('Val_' + metrics(val_predictions, val_targets) for metrics in self.metrics)
