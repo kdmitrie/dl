@@ -66,6 +66,9 @@ class ModelTrainer:
     # Whether to transfer data on GPU before applying the model
     transfer_x_to_device : bool = True
         
+    # Whether to switch between eval and train while training
+    switch_eval_train : bool = True
+        
     validation_calculate_rate: int = 1 # 0 for never calculating validation metrics
     print_rate: int = 1 # 0 for never printing metrics
     limit_batches_per_epoch: int = 0 # if not zero, stop epoch on this value
@@ -155,7 +158,8 @@ class ModelTrainer:
         val_loss = False
         for epoch in range(num_epochs):
             # We train the model
-            model.train()
+            if self.switch_eval_train:
+                model.train()
             train_predictions, train_targets, train_loss = self._train_epoch(model, epoch, self.train_loader, self.scheduler, self._backward_pass_train)
             
             # Calculate metrics
@@ -163,7 +167,8 @@ class ModelTrainer:
             
             # We validate the model (if it's time to do it)
             if (self.validation_calculate_rate > 0) and (epoch % self.validation_calculate_rate == 0):
-                model.eval()
+                if self.switch_eval_train:
+                    model.eval()
                 with torch.no_grad():
                     val_predictions, val_targets, val_loss = self._train_epoch(model, epoch, self.val_loader, None, self._backward_pass_no_train)
                     # Calculate metrics
