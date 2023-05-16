@@ -42,6 +42,44 @@ class ModelMultilabelAccuracy(ModelMetrics):
     def calc(self, predictions: np.ndarray, targets: np.ndarray) -> float:
         predict_class = np.argmax(predictions, axis=-1)
         return sum(tgt[cl] for (cl, tgt) in zip(predict_class, targets)) / len(targets)
+
+    
+    
+class ModelStatisticsClassAccuracy(ModelMetrics):
+    """Class for storing and calculating the accuracy of a model on each class"""
+    name = 'class_accuracy
+
+    def __init__(self, num_classes=2, beta=0.9):
+        self.num_classes = num_classes
+        self.beta = beta
+        self.probabilities = np.zeros(num_classes)
+        self.totals = np.zeros(num_classes)
+
+
+    def calc(self, predictions: np.ndarray, targets: np.ndarray) -> float: pass
+
+
+    def get_probabilities(self):
+        return self.probabilities
+
+    
+    def __call__(self, predictions: np.ndarray, targets: np.ndarray, fmt:str = '.3f') -> str | None:
+        preds = np.argmax(predictions, axis = 1)
+
+        # Total number of each class occurence
+        totals = np.zeros(self.num_classes)
+        keys_totals, count_totals = np.unique(targets, return_counts=True)
+        totals[keys_totals] = count_totals
+
+        # Number of each class correct results
+        probabilities = np.zeros(self.num_classes)
+        keys_correct, count_correct = np.unique(targets[targets == preds], return_counts=True)
+        probabilities[keys_correct] = count_correct / totals[keys_correct]
+        
+        self.probabilities = (self.probabilities * self.totals * self.beta + probabilities * totals * (1 - self.beta)) / (self.totals * self.beta + totals * (1 - self.beta) + 1e-10)
+
+        self.totals += totals
+        return None
     
     
     
