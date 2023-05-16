@@ -47,7 +47,7 @@ class ModelMultilabelAccuracy(ModelMetrics):
     
 class ModelStatisticsClassAccuracy(ModelMetrics):
     """Class for storing and calculating the accuracy of a model on each class"""
-    name = 'class_accuracy
+    name = 'class_accuracy'
 
     def __init__(self, num_classes=2, beta=0.9):
         self.num_classes = num_classes
