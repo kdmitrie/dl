@@ -21,7 +21,7 @@ class ModelMetrics(ABC):
     def calc(self, predictions: np.ndarray, targets: np.ndarray) -> float: pass
 
     
-    def __call__(self, predictions: np.ndarray, targets: np.ndarray, fmt:str = '.3f') -> str:
+    def __call__(self, predictions: np.ndarray, targets: np.ndarray, fmt:str = '.3f') -> str | None:
         value = self.calc(predictions, targets)
         return ('{}={:'+fmt+'}').format(self.name, value)
 
@@ -162,7 +162,12 @@ class ModelTrainer:
             train_predictions, train_targets, train_loss = self._train_epoch(model, epoch, self.train_loader, self.scheduler, self._backward_pass_train)
             
             # Calculate metrics
-            train_metrics = ', '.join('Train_' + metrics(train_predictions, train_targets) for metrics in self.metrics)
+            metric_results = []
+            for metrics in self.metrics:
+                metric_result = metrics(train_predictions, train_targets)
+                if metric_result is not None:
+                    metric_results.append('Train_' +  metric_result)
+            train_metrics = ', '.join(metric_results)
             
             # We validate the model (if it's time to do it)
             if (self.validation_calculate_rate > 0) and (epoch % self.validation_calculate_rate == 0):
@@ -171,7 +176,12 @@ class ModelTrainer:
                 with torch.no_grad():
                     val_predictions, val_targets, val_loss = self._train_epoch(model, epoch, self.val_loader, None, self._backward_pass_no_train)
                     # Calculate metrics
-                    val_metrics = ', '.join('Val_' + metrics(val_predictions, val_targets) for metrics in self.metrics)
+                    metric_results = []
+                    for metrics in self.metrics:
+                        metric_result = metrics(val_predictions, val_targets)
+                        if metric_result is not None:
+                            metric_results.append('Val_' +  metric_result)
+                    val_metrics = ', '.join(metric_results)
 
             # We print summary (if it's time to do it)
             if (self.print_rate > 0) and (epoch % self.print_rate == 0):
