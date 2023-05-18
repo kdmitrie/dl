@@ -4,7 +4,7 @@ import pickle
 import os
 
 class DataSaver(ABC):
-    print : False
+    print : bool = False
 
     @abstractmethod 
     def save(self, localName:str, remoteName:str) -> None: pass
@@ -15,6 +15,7 @@ class DataSaver(ABC):
 
 class FTPDataSaver(DataSaver):
     def __init__(self, host:str, user:str, password:str, chdir: str='.' ):
+        super().__init__()
         self.credentials = host, user, password
         self.chdir = chdir
 
