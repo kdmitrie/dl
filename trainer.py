@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Tuple, Callable
+from typing import List, Tuple, Callable, Union
 from numbers import Number
 
 from abc import ABC, abstractmethod
@@ -21,7 +21,7 @@ class ModelMetrics(ABC):
     def calc(self, predictions: np.ndarray, targets: np.ndarray) -> float: pass
 
     
-    def __call__(self, predictions: np.ndarray, targets: np.ndarray, fmt:str = '.3f') -> str | None:
+    def __call__(self, predictions: np.ndarray, targets: np.ndarray, fmt:str = '.3f') -> Union[None, str]:
         value = self.calc(predictions, targets)
         return ('{}={:'+fmt+'}').format(self.name, value)
 
@@ -63,7 +63,7 @@ class ModelStatisticsClassAccuracy(ModelMetrics):
         return self.probabilities
 
     
-    def __call__(self, predictions: np.ndarray, targets: np.ndarray, fmt:str = '.3f') -> str | None:
+    def __call__(self, predictions: np.ndarray, targets: np.ndarray, fmt:str = '.3f') -> Union[None, str]:
         preds = np.argmax(predictions, axis = 1)
 
         # Total number of each class occurence
@@ -113,7 +113,7 @@ class ModelTrainer:
     save_model_path: str = None # Where to save a model
         
     # Callbacks
-    onModelSave : Callable | None = None # onModelSave(trainer, model, epoch, file)
+    onModelSave : Union[Callable, str] = None # onModelSave(trainer, model, epoch, file)
     
     def _forward_pass(self, model: Module, x:Tensor, y:Tensor) -> Tuple[np.ndarray, Tensor]:
         """Applies the model and returns an array of predictions and a tensor of loss values"""
