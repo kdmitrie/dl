@@ -111,7 +111,9 @@ class ModelTrainer:
     print_rate: int = 1 # 0 for never printing metrics
     limit_batches_per_epoch: int = 0 # if not zero, stop epoch on this value
     save_model_path: str = None # Where to save a model
-    
+        
+    # Callbacks
+    onModelSave : Callable | None = None # onModelSave(trainer, model, epoch, file)
     
     def _forward_pass(self, model: Module, x:Tensor, y:Tensor) -> Tuple[np.ndarray, Tensor]:
         """Applies the model and returns an array of predictions and a tensor of loss values"""
@@ -233,3 +235,6 @@ class ModelTrainer:
                 return
             if (self.save_model_path is not None):
                 torch.save(model, self.save_model_path % epoch)
+                
+                if callable(self.onModelSave):
+                    self.onModelSave(trainer=self, model=model, epoch=epoch, file=self.save_model_path % epoch)
