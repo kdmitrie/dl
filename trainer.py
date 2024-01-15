@@ -12,6 +12,7 @@ from torch.optim import Optimizer
 from torch.optim.lr_scheduler import _LRScheduler
 
 import numpy as np
+from scipy.special import rel_entr, softmax
 
 
 class ModelMetrics(ABC):
@@ -43,6 +44,16 @@ class ModelMultilabelAccuracy(ModelMetrics):
         predict_class = np.argmax(predictions, axis=-1)
         return sum(tgt[cl] for (cl, tgt) in zip(predict_class, targets)) / len(targets)
 
+
+class ModelKL(ModelMetrics):
+    """Kullback–Leibler divergence metrics"""
+    name = 'KL'
+    epsilon = float=10**-15
+    def calc(self, predictions: np.ndarray, targets: np.ndarray) -> float:
+        probabilities = softmax(predictions, axis=1)
+        submission = np.clip(probabilities, self.epsilon, 1 - self.epsilon)
+        entropy = rel_entr(targets, submission)
+        return np.average(entropy.sum(axis=1))
     
     
 class ModelStatisticsClassAccuracy(ModelMetrics):
