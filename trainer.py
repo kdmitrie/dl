@@ -49,8 +49,14 @@ class ModelKL(ModelMetrics):
     """Kullback–Leibler divergence metrics"""
     name = 'KL'
     epsilon = float=10**-15
+    processing = 'softmax'
     def calc(self, predictions: np.ndarray, targets: np.ndarray) -> float:
-        probabilities = softmax(predictions, axis=1)
+        if self.processing == 'exp':
+            probabilities = np.exp(predictions)
+        elif self.processing == 'softmax':
+            probabilities = softmax(predictions, axis=1)
+        else:
+            probabilities = predictions
         submission = np.clip(probabilities, self.epsilon, 1 - self.epsilon)
         entropy = rel_entr(targets, submission)
         return np.average(entropy.sum(axis=1))
