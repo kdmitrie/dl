@@ -14,6 +14,7 @@ from torch.optim.lr_scheduler import _LRScheduler
 import numpy as np
 from scipy.special import rel_entr, softmax
 
+from tqdm import tqdm
 
 class ModelMetrics(ABC):
     """Base class representing metrics"""
@@ -123,6 +124,9 @@ class ModelTrainer:
         
     # Whether to switch between eval and train while training
     switch_eval_train : bool = True
+
+    # Whether to use tqdm
+    use_tqdm: bool = True
         
     validation_calculate_rate: int = 1 # 0 for never calculating validation metrics
     print_rate: int = 1 # 0 for never printing metrics
@@ -174,7 +178,8 @@ class ModelTrainer:
         all_targets = []
 
         # We select the minibatches of objects one per step
-        for i_step, (x, y) in enumerate(loader):
+        iterator = enumerate(tqdm(loader)) if self.use_tqdm else enumerate(loader)
+        for i_step, (x, y) in iterator:
             # Limit batches number per epoch. If it is set, and we reach it, then stop
             if self.limit_batches_per_epoch and i_step >= self.limit_batches_per_epoch:
                 break
