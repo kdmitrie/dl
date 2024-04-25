@@ -120,13 +120,16 @@ class ModelTrainer:
     metrics: List[ModelMetrics] = field(default_factory=list)
         
     # Whether to transfer data on GPU before applying the model
-    transfer_x_to_device : bool = True
+    transfer_x_to_device: bool = True
         
     # Whether to switch between eval and train while training
-    switch_eval_train : bool = True
+    switch_eval_train: bool = True
 
     # Whether to use tqdm
     use_tqdm: bool = True
+
+    # Max norm of the gradients to be clipped; 0 for no clipping
+    max_clip_grad_norm: float = 0
         
     validation_calculate_rate: int = 1 # 0 for never calculating validation metrics
     print_rate: int = 1 # 0 for never printing metrics
@@ -149,7 +152,7 @@ class ModelTrainer:
         return prediction.detach().cpu().numpy(), loss_value
     
 
-    def _backward_pass_train(self, loss_value: Module) -> Tuple[List[Number], List[Number]]:
+    def _backward_pass_train(self, model: Module, loss_value: Module) -> Tuple[List[Number], List[Number]]:
         """Trains the model and returns an array of loss values"""
 
         # 1. We reset the gradient values ...
@@ -157,6 +160,9 @@ class ModelTrainer:
         
         # 2. ... and calculate the new gradient values
         loss_value.backward()
+
+        if self.max_clip_grad_norm > 0:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), self.max_clip_grad_norm)
         
         # 3. Then we renew the model parameters
         self.optimizer.step()
@@ -164,7 +170,7 @@ class ModelTrainer:
         return loss_value.detach().cpu().numpy()
     
 
-    def _backward_pass_no_train(self, loss_value: Module) -> Tuple[List[Number], List[Number]]:
+    def _backward_pass_no_train(self, model: Module, loss_value: Module) -> Tuple[List[Number], List[Number]]:
         """Returns the detached loss value without model training"""
         return loss_value.detach().cpu().numpy()
     
@@ -186,7 +192,7 @@ class ModelTrainer:
 
             #print(f'\t\tStep {i_step}/{len(loader)}')
             train_prediction, train_loss = self._forward_pass(model, x, y)
-            train_loss_value = backward(train_loss)
+            train_loss_value = backward(model, train_loss)
             
             # We renew the scheduler step (if the scheduler is used)
             if scheduler:
