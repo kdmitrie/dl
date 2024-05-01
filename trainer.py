@@ -13,6 +13,7 @@ from torch.optim.lr_scheduler import _LRScheduler
 
 import numpy as np
 from scipy.special import rel_entr, softmax
+from sklearn.metrics import roc_auc_score
 
 from tqdm import tqdm
 
@@ -35,9 +36,20 @@ class ModelAccuracy(ModelMetrics):
     def calc(self, predictions: np.ndarray, targets: np.ndarray) -> float:
         predict_class = np.argmax(predictions, axis=-1)
         return sum(predict_class == targets) / len(targets)
+
     
-    
-    
+
+class ModelROCAUC(ModelMetrics):
+    """ROC AUC metrics variant taking into account only the classes, which exist in targets"""
+    name = 'rocauc'
+    average = 'macro'
+    def calc(self, predictions: np.ndarray, targets: np.ndarray) -> float:
+        target_sums = targets.sum(axis=0)
+        scored_columns = target_sums > 0
+        return roc_auc_score(targets[:, scored_columns], predictions[:, scored_columns], average=self.average)
+        
+
+
 class ModelMultilabelAccuracy(ModelMetrics):
     """Multilabel Accuracy metrics"""
     name = 'mla'
