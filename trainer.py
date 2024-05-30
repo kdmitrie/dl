@@ -274,8 +274,9 @@ class ModelTrainer:
             if np.isnan(train_loss):
                 return
             if (self.save_model_path is not None):
-                torch.save(model.cpu(), self.save_model_path % epoch)
-                model.to(self.device)
+                torch.save(model, self.save_model_path % epoch)
+                #torch.save(model.cpu(), self.save_model_path % epoch)
+                #model.to(self.device)
                 
                 if callable(self.onModelSave):
                     self.onModelSave(trainer=self, model=model, epoch=epoch, file=self.save_model_path % epoch)
