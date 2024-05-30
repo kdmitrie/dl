@@ -275,8 +275,7 @@ class ModelTrainer:
                 return
             if (self.save_model_path is not None):
                 torch.save(model, self.save_model_path % epoch)
-                #torch.save(model.cpu(), self.save_model_path % epoch)
-                #model.to(self.device)
+                torch.save(model.state_dict(), self.save_model_path % epoch + '.state-dict')
                 
                 if callable(self.onModelSave):
                     self.onModelSave(trainer=self, model=model, epoch=epoch, file=self.save_model_path % epoch)
