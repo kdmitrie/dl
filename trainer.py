@@ -149,7 +149,7 @@ class ModelTrainer:
     save_model_path: str = None # Where to save a model
         
     # Callbacks
-    onModelSave : Union[Callable, str] = None # onModelSave(trainer, model, epoch, file)
+    onModelSave : Union[Callable, str] = None # onModelSave(trainer, model, epoch)
     
     def _forward_pass(self, model: Module, x:Tensor, y:Tensor) -> Tuple[np.ndarray, Tensor]:
         """Applies the model and returns an array of predictions and a tensor of loss values"""
@@ -278,4 +278,4 @@ class ModelTrainer:
                 torch.save(model.state_dict(), self.save_model_path % epoch + '.state-dict')
                 
             if callable(self.onModelSave):
-                self.onModelSave(trainer=self, model=model, epoch=epoch, file=self.save_model_path % epoch)
+                self.onModelSave(trainer=self, model=model, epoch=epoch)
