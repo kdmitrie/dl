@@ -10,6 +10,7 @@ class ModelLogger:
     trainer: ModelTrainer
     print_to_stdout: bool = True
     print_to_file: Optional[str] = None
+    print_time: Optional[bool] = False
 
     def __post_init__(self) -> None:
         """
@@ -34,7 +35,9 @@ class ModelLogger:
         :param kwargs: parameters passed to the callback function
         """
         result = kwargs['results'][kwargs['epoch']]
-        summary = f'{kwargs['epoch']}/{kwargs['num_epochs']}\t\033[92mTrain {result['train']}\t\033[93mVal {result['validation']}\033[00m'
+        timestr = f'{datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}\t' if self.print_time else ''
+
+        summary = f'{kwargs['epoch']}/{kwargs['num_epochs']}{timestr}\t\033[92mTrain {result['train']}\t\033[93mVal {result['validation']}\033[00m'
         self.output(summary)
 
 

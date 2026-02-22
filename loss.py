@@ -22,6 +22,11 @@ class MultiLabel(torch.nn.Module):
             target = target[:, self.labels_indices]
         return self.base_module(input, target)
 
+    def __getattr__(self, name: str):
+        if name == 'name':
+            return self.base_module.name
+        return super().__getattr__(name)
+
 
 class FocalLossWithWeight(torch.nn.Module):
     def __init__(self, cfg, gamma=2):
@@ -97,7 +102,7 @@ class PairwiseRankLoss(torch.nn.Module):
         super().__init__()
         self.act = torch.nn.Softplus()
         self.margin = margin
-        
+
         if soft is None:
             self.y_act = torch.sign
         else:

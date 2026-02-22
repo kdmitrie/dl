@@ -174,7 +174,7 @@ class ModelTrainer:
         assert self.optimizer is not None or not training, '`optimizer` must not be None if training is enabled'
 
         # We select the minibatches of objects one per step
-        iterator = enumerate(tqdm(loader)) if self.use_tqdm else enumerate(loader)
+        iterator = enumerate(tqdm(loader) if self.use_tqdm else loader)
 
         # Disable gradient calculations if no training is performed
         grad_calculation_context = nullcontext if training else torch.no_grad
