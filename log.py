@@ -35,7 +35,7 @@ class ModelLogger:
         :param kwargs: parameters passed to the callback function
         """
         result = kwargs['results'][kwargs['epoch']]
-        timestr = f'{datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}\t' if self.print_time else ''
+        timestr = f'\t{datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}\t' if self.print_time else ''
 
         summary = f'{kwargs['epoch']}/{kwargs['num_epochs']}{timestr}\t\033[92mTrain {result['train']}\t\033[93mVal {result['validation']}\033[00m'
         self.output(summary)
